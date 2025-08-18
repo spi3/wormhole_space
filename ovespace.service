@@ -1,0 +1,16 @@
+[Unit]
+Description=OvenSpace
+
+[Service]
+User=root
+PIDFile=/var/run/ovendelivery.pid
+WorkingDirectory=/home/ovenadmin/OvenSpace
+ExecStart=/bin/sh -c 'cd //home/ovenadmin/OvenSpace && source venv/bin/activate && gunicorn --bind 0.0.0.0:5050 --worker-class eventlet -w 1 --threads 1 OvenSpace:app'
+RestartSec=2
+RestartPreventExitStatus=1
+StandardOutput=null
+StandardError=syslog+console
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
