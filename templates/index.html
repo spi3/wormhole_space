@@ -21,6 +21,7 @@
 </head>
 
 <body class="app">
+  <div id="theatre-backdrop" class="theatre-backdrop"></div>
   <div class="app-wrapper d-flex flex-column">
     <div class="header">
       <div class=" container d-flex flex-column flex-sm-row align-items-sm-end justify-content-between py-4">
@@ -206,6 +207,9 @@
   <script type="text/template" id="seat-template">
     <div class="col-6 col-md-6 col-lg-4">
       <div id="seat-<%= streamName %>" class="seat mb-4 ratio ratio-16x9">
+        <button class="theatre-mode-button btn btn-sm btn-dark" title="Theatre Mode">
+          <i class="fas fa-expand"></i>
+        </button>
         <div class="player-area">
           <div id="player-<%= streamName %>">
 

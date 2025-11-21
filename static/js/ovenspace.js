@@ -625,6 +625,44 @@ function updateUsersList(users) {
   });
 }
 
+// Theatre Mode functionality
+let currentTheatreMode = null;
+
+function enterTheatreMode(seatElement) {
+  if (currentTheatreMode) {
+    exitTheatreMode();
+  }
+
+  const seatCol = $(seatElement).parent();
+  seatCol.addClass('theatre-mode');
+  $('#theatre-backdrop').addClass('active');
+  currentTheatreMode = seatCol;
+
+  // Disable body scroll
+  $('body').css('overflow', 'hidden');
+}
+
+function exitTheatreMode() {
+  if (currentTheatreMode) {
+    currentTheatreMode.removeClass('theatre-mode');
+    $('#theatre-backdrop').removeClass('active');
+    currentTheatreMode = null;
+
+    // Re-enable body scroll
+    $('body').css('overflow', '');
+  }
+}
+
+function toggleTheatreMode(seatElement) {
+  const seatCol = $(seatElement).parent();
+
+  if (seatCol.hasClass('theatre-mode')) {
+    exitTheatreMode();
+  } else {
+    enterTheatreMode(seatElement);
+  }
+}
+
 // Don't render static seats anymore - seats will be created dynamically when streams appear
 
 checkStream();
