@@ -1,0 +1,59 @@
+services:
+  ovenspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ovenspace
+    ports:
+      - "5100:5100"
+    environment:
+      - FLASK_ENV=production
+    extra_hosts:
+      - "ome.unimatrix0.cloud:10.10.10.130"
+    volumes:
+      - ./ovenspace.cfg:/app/ovenspace.cfg:ro
+    depends_on:
+      - ovenmediaengine
+    restart: unless-stopped
+    networks:
+      servlan:
+        ipv4_address: 10.10.10.129
+        gw_priority: 1
+      ovenspace-network:
+
+  ovenmediaengine:
+    image: airensoft/ovenmediaengine:latest
+    container_name: ovenmediaengine
+    ports:
+      # RTMP Provider
+      - "1935:1935"
+      # SRT Provider
+      - "9999:9999/udp"
+      # Origin Server (HLS/DASH)
+      - "9000:9000"
+      # WebRTC Signaling (Provider/Publisher/LLHLS)
+      - "3333:3333"
+      # WebRTC TCP relay
+      - "3478:3478"
+      # WebRTC ICE candidates (UDP)
+      - "10000-10009:10000-10009/udp"
+      # REST API
+      - "8081:8081"
+    volumes:
+      - ./Server.xml:/opt/ovenmediaengine/bin/origin_conf/Server.xml:ro
+    restart: unless-stopped
+    networks:
+      servlan:
+        ipv4_address: 10.10.10.130
+        gw_priority: 1
+      ovenspace-network:
+
+networks:
+  ovenspace-network:
+    internal: true
+  servlan:
+    external: true
+
+volumes:
+  ome-origin-conf:
+  ome-edge-conf:
