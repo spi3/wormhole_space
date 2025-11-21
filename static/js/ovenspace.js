@@ -5,8 +5,6 @@ let shareMode = null;
 let liveKitInputMap = {};
 let tryToStreaming = false;
 
-const SEAT_COUNT = 9;
-
 const seatArea = $('#seat-area');
 const seatTemplate = _.template($('#seat-template').html());
 
@@ -43,6 +41,8 @@ const inputDeviceModal = $('#input-device-modal');
 
 const totalUserCountSpan = $('#total-user-count-span');
 const videoUserCountSpan = $('#video-user-count-span');
+
+const startStreamButton = $('#start-stream-button');
 
 if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
   shareDisplayButton.addClass('d-none');
@@ -98,6 +98,14 @@ backToCaptureSelectButton.on('click', function () {
 startShareButton.on('click', function () {
 
   startStreaming();
+});
+
+startStreamButton.on('click', function () {
+
+  // Generate a unique stream name for this user
+  selectedInputStreamName = STREAM_NAME + Date.now();
+
+  inputDeviceModal.modal('show');
 });
 
 function renderDevice(type, select, devices) {
@@ -356,50 +364,34 @@ function getDisplayConstraints() {
   return newConstraint;
 }
 
-function renderSeats() {
+function createLocalPlayer(streamName) {
 
-  let seatRendered = 0;
+  let seat = $('#seat-' + streamName);
 
-  for (let i = 0; i < SEAT_COUNT; i++) {
-
-    const streamName = STREAM_NAME + seatRendered;
-
-    const seat = $(seatTemplate({
+  // If seat doesn't exist, create it dynamically
+  if (seat.length === 0) {
+    const newSeat = $(seatTemplate({
       streamName: streamName
     }));
 
-    seat.find('.join-button ').data('stream-name', streamName);
-
-    seat.find('.join-button ').on('click', function (e) {
-
-      selectedInputStreamName = $(this).data('stream-name');
-
-      inputDeviceModal.modal('show');
+    // Add leave button handler
+    newSeat.on('mouseenter', function () {
+      newSeat.find('.leave-button').stop().fadeIn();
     });
 
-    seat.on('mouseenter', function () {
-      seat.find('.leave-button').stop().fadeIn();
+    newSeat.on('mouseleave', function () {
+      newSeat.find('.leave-button').stop().fadeOut();
     });
 
-    seat.on('mouseleave', function () {
-      seat.find('.leave-button').stop().fadeOut();
-    });
+    newSeat.find('.leave-button').data('stream-name', streamName);
 
-    seat.find('.leave-button ').data('stream-name', streamName);
-
-    seat.find('.leave-button').on('click', function () {
+    newSeat.find('.leave-button').on('click', function () {
       destroyPlayer($(this).data('stream-name'))
     });
 
-    seatArea.append(seat);
-
-    seatRendered++;
+    seatArea.append(newSeat);
+    seat = $('#seat-' + streamName);
   }
-}
-
-function createLocalPlayer(streamName) {
-
-  const seat = $('#seat-' + streamName);
 
   seat.addClass('seat-on');
 
@@ -410,7 +402,32 @@ function createLocalPlayer(streamName) {
 
 function createPlayer(streamName) {
 
-  const seat = $('#seat-' + streamName);
+  let seat = $('#seat-' + streamName);
+
+  // If seat doesn't exist, create it dynamically
+  if (seat.length === 0) {
+    const newSeat = $(seatTemplate({
+      streamName: streamName
+    }));
+
+    // Add leave button handler
+    newSeat.on('mouseenter', function () {
+      newSeat.find('.leave-button').stop().fadeIn();
+    });
+
+    newSeat.on('mouseleave', function () {
+      newSeat.find('.leave-button').stop().fadeOut();
+    });
+
+    newSeat.find('.leave-button').data('stream-name', streamName);
+
+    newSeat.find('.leave-button').on('click', function () {
+      destroyPlayer($(this).data('stream-name'))
+    });
+
+    seatArea.append(newSeat);
+    seat = $('#seat-' + streamName);
+  }
 
   seat.addClass('seat-on');
 
@@ -459,27 +476,23 @@ function destroyPlayer(streamName) {
   localStreams = arrayRemove(localStreams, streamName);
 
   const seat = $('#seat-' + streamName);
-  seat.removeClass('seat-on');
-
-  seat.find('.player-area').addClass('d-none');
 
   const player = OvenPlayer.getPlayerByContainerId('player-' + streamName);
 
   if (player) {
-
     player.remove();
   }
-
-  seat.find('.local-player-area').addClass('d-none');
 
   const localPlayer = document.getElementById('local-player-' + streamName);
 
   if (localPlayer) {
-
     localPlayer.srcObject = null;
   }
 
   removeInputStream(streamName);
+
+  // Completely remove the seat element from the grid
+  seat.parent().remove();
 }
 
 async function getStreams() {
@@ -592,7 +605,7 @@ socket.on('user count', function (data) {
   totalUserCountSpan.text(data.user_count);
 });
 
-renderSeats();
+// Don't render static seats anymore - seats will be created dynamically when streams appear
 
 checkStream();
 
