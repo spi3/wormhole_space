@@ -605,6 +605,26 @@ socket.on('user count', function (data) {
   totalUserCountSpan.text(data.user_count);
 });
 
+socket.on('user list', function (data) {
+  updateUsersList(data.users);
+});
+
+function updateUsersList(users) {
+  const usersList = $('#users-list');
+  usersList.empty();
+
+  if (users.length === 0) {
+    usersList.append('<div class="text-center text-muted">No users connected</div>');
+    return;
+  }
+
+  users.forEach(function(username) {
+    const userItem = $('<div class="list-group-item"></div>');
+    userItem.html('<i class="fas fa-user me-2"></i>' + username);
+    usersList.append(userItem);
+  });
+}
+
 // Don't render static seats anymore - seats will be created dynamically when streams appear
 
 checkStream();

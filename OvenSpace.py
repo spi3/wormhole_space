@@ -1,6 +1,6 @@
 import base64
 import requests
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from urllib import parse
 
@@ -99,19 +99,36 @@ def get_streams():
 
 @socketio.on('connect')
 def on_connect():
-    users.add_user()
+    # Extract username from X-Auth-User header
+    username = request.headers.get('X-Auth-User', '').strip()
+    # Default to Anonymous if header is missing or empty
+    if not username:
+        username = 'Anonymous'
+    session_id = request.sid
+
+    users.add_user(session_id=session_id, username=username)
 
     emit('user count', {
         'user_count': users.get_user_count()
     }, broadcast=True)
 
+    emit('user list', {
+        'users': users.get_users()
+    }, broadcast=True)
+
 
 @socketio.on('disconnect')
 def on_disconnect():
-    users.remove_user()
+    session_id = request.sid
+
+    users.remove_user(session_id=session_id)
 
     emit('user count', {
         'user_count': users.get_user_count()
+    }, broadcast=True)
+
+    emit('user list', {
+        'users': users.get_users()
     }, broadcast=True)
 
 
