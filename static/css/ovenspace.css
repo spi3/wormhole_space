@@ -204,6 +204,20 @@ h6 {
     cursor: default;
 }
 
+.streamer-name-header {
+    color: #FFBB10;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.25rem 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.streamer-name-header:empty {
+    display: none;
+}
+
 .leave-button {
     display: none;
 }

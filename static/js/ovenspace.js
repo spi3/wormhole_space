@@ -21,6 +21,11 @@ const videoSourceSelect = $('#video-source-select');
 const audioSourceSelect = $('#audio-source-select');
 const constraintsSelect = $('.constraints-select');
 
+const resolutionSelect = $('#resolution-select');
+const fpsSelect = $('#fps-select');
+const bitrateSelect = $('#bitrate-select');
+const qualitySelect = $('.quality-select');
+
 const rtmpInputUrlInput = $('#rtmp-input-url-input');
 const rtmpInputStreamkeyInput = $('#rtmp-input-streamkey-input');
 const srtInputUrlInput = $('#srt-input-url-input');
@@ -78,6 +83,14 @@ constraintsSelect.on('change', function () {
   createWebRTCInput();
 });
 
+qualitySelect.on('change', function () {
+  // Only re-capture if already in a sharing mode
+  if (shareMode === 'device' || shareMode === 'display') {
+    removeInputStream(selectedInputStreamName);
+    createWebRTCInput();
+  }
+});
+
 shareRtmpButton.on('click', function () {
   shareMode = 'rtmp';
   readyStreaming();
@@ -102,8 +115,8 @@ startShareButton.on('click', function () {
 
 startStreamButton.on('click', function () {
 
-  // Generate a unique stream name for this user
-  selectedInputStreamName = STREAM_NAME + Date.now();
+  // Use the username as the stream name
+  selectedInputStreamName = CURRENT_USERNAME;
 
   inputDeviceModal.modal('show');
 });
@@ -139,7 +152,8 @@ function arrayRemove(arr, value) {
 
 function createWebRTCInput() {
 
-  const input = OvenLiveKit.create({
+  const quality = getSelectedQuality();
+  const createOptions = {
     callbacks: {
       connected: function () {
 
@@ -182,7 +196,22 @@ function createWebRTCInput() {
         showErrorMessage(error);
       }
     }
-  });
+  };
+
+  // Apply bitrate limit if set (not unlimited)
+  if (quality.bitrate > 0) {
+    createOptions.connectionConfig = {
+      maxVideoBitrate: quality.bitrate,
+      sdp: {
+        appendFmtp: {
+          'x-google-max-bitrate': quality.bitrate,
+          'x-google-start-bitrate': Math.floor(quality.bitrate / 2)
+        }
+      }
+    };
+  }
+
+  const input = OvenLiveKit.create(createOptions);
 
   input.attachMedia(inputVideo);
 
@@ -272,7 +301,6 @@ function resetInputUI() {
   waitingRtmpInputText.removeClass('d-none');
   connectedRtmpInputText.addClass('d-none');
 
-
   beforeStreamingTitle.text('Please choose sharing mode');
   captureSelectArea.removeClass('d-none');
 
@@ -320,6 +348,12 @@ function startStreaming() {
     localStreams.push(selectedInputStreamName);
     currentStreams.push(selectedInputStreamName);
 
+    // Notify others about this stream
+    socket.emit('stream started', {
+      stream_name: selectedInputStreamName,
+      username: CURRENT_USERNAME
+    });
+
     liveKitInputMap[selectedInputStreamName].startStreaming(OME_WEBRTC_INPUT_HOST + '/' + APP_NAME + '/' + selectedInputStreamName + '?direction=send&transport=tcp');
   }
 }
@@ -328,10 +362,23 @@ inputDeviceModal.on('hidden.bs.modal', function () {
   resetInputUI();
 });
 
+function getSelectedQuality() {
+  const resolution = resolutionSelect.val().split('x');
+  const fps = parseInt(fpsSelect.val(), 10);
+  const bitrate = parseInt(bitrateSelect.val(), 10);
+  return {
+    width: parseInt(resolution[0], 10),
+    height: parseInt(resolution[1], 10),
+    fps: fps,
+    bitrate: bitrate  // in kbps, 0 = unlimited
+  };
+}
+
 function getDeviceConstraints() {
 
   let videoDeviceId = videoSourceSelect.val();
   let audioDeviceId = audioSourceSelect.val();
+  let quality = getSelectedQuality();
 
   let newConstraints = {};
 
@@ -339,7 +386,10 @@ function getDeviceConstraints() {
     newConstraints.video = {
       deviceId: {
         exact: videoDeviceId
-      }
+      },
+      width: { ideal: quality.width },
+      height: { ideal: quality.height },
+      frameRate: { ideal: quality.fps }
     };
   }
 
@@ -356,9 +406,14 @@ function getDeviceConstraints() {
 
 function getDisplayConstraints() {
 
+  let quality = getSelectedQuality();
   let newConstraint = {};
 
-  newConstraint.video = true;
+  newConstraint.video = {
+    width: { ideal: quality.width },
+    height: { ideal: quality.height },
+    frameRate: { ideal: quality.fps }
+  };
   newConstraint.audio = true;
 
   return newConstraint;
@@ -389,6 +444,12 @@ function createLocalPlayer(streamName) {
       destroyPlayer($(this).data('stream-name'))
     });
 
+    // Add theatre mode button handler
+    newSeat.find('.theatre-mode-button').on('click', function (e) {
+      e.stopPropagation();
+      toggleTheatreMode(seat[0]);
+    });
+
     seatArea.append(newSeat);
     seat = $('#seat-' + streamName);
   }
@@ -396,6 +457,9 @@ function createLocalPlayer(streamName) {
   seat.addClass('seat-on');
 
   seat.find('.local-player-area').removeClass('d-none');
+
+  // Set the streamer header to current user
+  seat.parent().find('.streamer-name-header').text(CURRENT_USERNAME);
 
   document.getElementById('local-player-' + streamName).srcObject = liveKitInputMap[streamName].inputStream;
 }
@@ -425,6 +489,12 @@ function createPlayer(streamName) {
       destroyPlayer($(this).data('stream-name'))
     });
 
+    // Add theatre mode button handler
+    newSeat.find('.theatre-mode-button').on('click', function (e) {
+      e.stopPropagation();
+      toggleTheatreMode(seat[0]);
+    });
+
     seatArea.append(newSeat);
     seat = $('#seat-' + streamName);
   }
@@ -432,6 +502,9 @@ function createPlayer(streamName) {
   seat.addClass('seat-on');
 
   seat.find('.player-area').removeClass('d-none');
+
+  // Stream name is the username, so display it as the header
+  seat.parent().find('.streamer-name-header').text(streamName);
 
   const playerOption = {
     // image: OME_THUMBNAIL_HOST + '/' + APP_NAME + '/' + streamName + '/thumb.png',
@@ -472,6 +545,12 @@ function removeInputStream(streamName) {
 
 function destroyPlayer(streamName) {
   console.log('>>> destroyPlayer', streamName);
+
+  // If this was our stream, notify others
+  if (localStreams.includes(streamName)) {
+    socket.emit('stream stopped', { stream_name: streamName });
+  }
+
   currentStreams = arrayRemove(currentStreams, streamName);
   localStreams = arrayRemove(localStreams, streamName);
 
@@ -493,6 +572,9 @@ function destroyPlayer(streamName) {
 
   // Completely remove the seat element from the grid
   seat.parent().remove();
+
+  // Clean up local stream owners tracking
+  delete streamOwners[streamName];
 }
 
 async function getStreams() {
@@ -609,6 +691,34 @@ socket.on('user list', function (data) {
   updateUsersList(data.users);
 });
 
+// Track stream owners locally
+let streamOwners = {};
+
+socket.on('stream owner', function (data) {
+  streamOwners[data.stream_name] = data.username;
+  updateStreamerLabel(data.stream_name, data.username);
+});
+
+socket.on('all stream owners', function (data) {
+  streamOwners = data;
+  // Update all existing stream labels
+  Object.keys(data).forEach(function(streamName) {
+    updateStreamerLabel(streamName, data[streamName]);
+  });
+});
+
+// Request stream owners when connected
+socket.on('connect', function() {
+  socket.emit('get stream owners');
+});
+
+function updateStreamerLabel(streamName, username) {
+  const seat = $('#seat-' + streamName);
+  if (seat.length > 0) {
+    seat.parent().find('.streamer-name-header').text(username);
+  }
+}
+
 function updateUsersList(users) {
   const usersList = $('#users-list');
   usersList.empty();
@@ -664,6 +774,18 @@ function toggleTheatreMode(seatElement) {
 }
 
 // Don't render static seats anymore - seats will be created dynamically when streams appear
+
+// ESC key handler to exit theatre mode
+$(document).on('keydown', function(e) {
+  if (e.key === 'Escape' && currentTheatreMode) {
+    exitTheatreMode();
+  }
+});
+
+// Backdrop click handler to exit theatre mode
+$('#theatre-backdrop').on('click', function() {
+  exitTheatreMode();
+});
 
 checkStream();
 

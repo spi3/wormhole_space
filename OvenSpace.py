@@ -72,9 +72,14 @@ SITE_PORT = app.config['SITE_PORT']
 
 users = User.instance()
 
+# Track stream ownership: stream_name -> username
+stream_owners = {}
+
 
 @app.route("/")
 def space():
+    # Get username from header for this user
+    username = request.headers.get('X-Auth-User', '').strip() or 'Anonymous'
     return render_template(
         'index.html',
         app_name=OME_APP_NAME,
@@ -83,7 +88,8 @@ def space():
         srt_input_url=OME_SRT_INPUT_URL,
         webrtc_input_host=OME_WEBRTC_INPUT_HOST,
         webrtc_streaming_host=OME_WEBRTC_STREAMING_HOST,
-        llhls_streaming_host=OME_LLHLS_STREAMING_HOST
+        llhls_streaming_host=OME_LLHLS_STREAMING_HOST,
+        username=username
     )
 
 
@@ -130,6 +136,30 @@ def on_disconnect():
     emit('user list', {
         'users': users.get_users()
     }, broadcast=True)
+
+
+@socketio.on('stream started')
+def on_stream_started(data):
+    stream_name = data.get('stream_name')
+    username = data.get('username', 'Anonymous')
+    if stream_name:
+        stream_owners[stream_name] = username
+        emit('stream owner', {
+            'stream_name': stream_name,
+            'username': username
+        }, broadcast=True)
+
+
+@socketio.on('stream stopped')
+def on_stream_stopped(data):
+    stream_name = data.get('stream_name')
+    if stream_name and stream_name in stream_owners:
+        del stream_owners[stream_name]
+
+
+@socketio.on('get stream owners')
+def on_get_stream_owners():
+    emit('all stream owners', stream_owners)
 
 
 if __name__ == '__main__':
