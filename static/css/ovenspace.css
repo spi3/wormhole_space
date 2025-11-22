@@ -204,14 +204,27 @@ h6 {
     cursor: default;
 }
 
+.stream-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    position: relative;
+}
+
+.stream-header:empty,
+.stream-header:not(:has(.streamer-name-header:not(:empty))) {
+    display: none;
+}
+
 .streamer-name-header {
     color: #FFBB10;
     font-size: 0.85rem;
     font-weight: 500;
-    padding: 0.25rem 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex: 1;
 }
 
 .streamer-name-header:empty {
@@ -315,4 +328,96 @@ h6 {
 
 .theatre-backdrop.active {
     display: block;
+}
+
+/* Dynamic aspect ratios based on stream resolution */
+.ratio-21x9 {
+    --bs-aspect-ratio: calc(9 / 21 * 100%);
+}
+
+.ratio-32x9 {
+    --bs-aspect-ratio: calc(9 / 32 * 100%);
+}
+
+.ratio-9x16 {
+    --bs-aspect-ratio: calc(16 / 9 * 100%);
+}
+
+/* Ensure video fits properly without cropping */
+.seat video,
+.seat .op-media-element-container video {
+    object-fit: contain;
+}
+
+/* Viewer count badge */
+.viewer-count-badge {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.viewer-count-badge:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.viewer-count-badge i {
+    font-size: 0.65rem;
+}
+
+/* Viewer list popup */
+.viewer-list-popup {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 11;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 150px;
+    max-width: 200px;
+    max-height: 200px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+.viewer-list-header {
+    background: #FFBB10;
+    color: var(--ovenspace-body-font-color);
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.viewer-list-content {
+    padding: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.viewer-list-content .viewer-item {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ovenspace-body-font-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.viewer-list-content .viewer-item i {
+    color: #6c757d;
+}
+
+.viewer-list-content .no-viewers {
+    color: #6c757d;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 0.5rem;
 }

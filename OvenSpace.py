@@ -75,6 +75,12 @@ users = User.instance()
 # Track stream ownership: stream_name -> username
 stream_owners = {}
 
+# Track stream viewers: stream_name -> {session_id: username}
+stream_viewers = {}
+
+# Track which streams each session is watching: session_id -> set(stream_names)
+session_watching = {}
+
 
 @app.route("/")
 def space():
@@ -127,6 +133,19 @@ def on_connect():
 def on_disconnect():
     session_id = request.sid
 
+    # Clean up viewer tracking for this session
+    if session_id in session_watching:
+        for stream_name in session_watching[session_id]:
+            if stream_name in stream_viewers and session_id in stream_viewers[stream_name]:
+                del stream_viewers[stream_name][session_id]
+                # Broadcast updated viewer list
+                emit('stream viewers', {
+                    'stream_name': stream_name,
+                    'viewers': list(stream_viewers[stream_name].values()),
+                    'count': len(stream_viewers[stream_name])
+                }, broadcast=True)
+        del session_watching[session_id]
+
     users.remove_user(session_id=session_id)
 
     emit('user count', {
@@ -160,6 +179,63 @@ def on_stream_stopped(data):
 @socketio.on('get stream owners')
 def on_get_stream_owners():
     emit('all stream owners', stream_owners)
+
+
+@socketio.on('watching stream')
+def on_watching_stream(data):
+    stream_name = data.get('stream_name')
+    session_id = request.sid
+    username = users.get_username(session_id) or 'Anonymous'
+
+    if stream_name:
+        # Initialize tracking structures if needed
+        if stream_name not in stream_viewers:
+            stream_viewers[stream_name] = {}
+        if session_id not in session_watching:
+            session_watching[session_id] = set()
+
+        # Add viewer
+        stream_viewers[stream_name][session_id] = username
+        session_watching[session_id].add(stream_name)
+
+        # Broadcast updated viewer list
+        emit('stream viewers', {
+            'stream_name': stream_name,
+            'viewers': list(stream_viewers[stream_name].values()),
+            'count': len(stream_viewers[stream_name])
+        }, broadcast=True)
+
+
+@socketio.on('stopped watching stream')
+def on_stopped_watching_stream(data):
+    stream_name = data.get('stream_name')
+    session_id = request.sid
+
+    if stream_name:
+        # Remove viewer
+        if stream_name in stream_viewers and session_id in stream_viewers[stream_name]:
+            del stream_viewers[stream_name][session_id]
+        if session_id in session_watching:
+            session_watching[session_id].discard(stream_name)
+
+        # Broadcast updated viewer list
+        viewers = stream_viewers.get(stream_name, {})
+        emit('stream viewers', {
+            'stream_name': stream_name,
+            'viewers': list(viewers.values()),
+            'count': len(viewers)
+        }, broadcast=True)
+
+
+@socketio.on('get all stream viewers')
+def on_get_all_stream_viewers():
+    all_viewers = {}
+    for stream_name, viewers in stream_viewers.items():
+        all_viewers[stream_name] = {
+            'viewers': list(viewers.values()),
+            'count': len(viewers)
+        }
+    emit('all stream viewers', all_viewers)
 
 
 if __name__ == '__main__':

@@ -450,6 +450,12 @@ function createLocalPlayer(streamName) {
       toggleTheatreMode(seat[0]);
     });
 
+    // Add viewer badge click handler
+    newSeat.find('.viewer-count-badge').on('click', function (e) {
+      e.stopPropagation();
+      toggleViewerList(newSeat);
+    });
+
     seatArea.append(newSeat);
     seat = $('#seat-' + streamName);
   }
@@ -461,7 +467,23 @@ function createLocalPlayer(streamName) {
   // Set the streamer header to current user
   seat.parent().find('.streamer-name-header').text(CURRENT_USERNAME);
 
-  document.getElementById('local-player-' + streamName).srcObject = liveKitInputMap[streamName].inputStream;
+  // Streamer also counts as watching their own stream
+  socket.emit('watching stream', { stream_name: streamName });
+
+  const localVideo = document.getElementById('local-player-' + streamName);
+  localVideo.srcObject = liveKitInputMap[streamName].inputStream;
+
+  // Detect aspect ratio from video track
+  const stream = liveKitInputMap[streamName].inputStream;
+  if (stream) {
+    const videoTrack = stream.getVideoTracks()[0];
+    if (videoTrack) {
+      const settings = videoTrack.getSettings();
+      if (settings.width && settings.height) {
+        applyAspectRatioToSeat(seat, settings.width, settings.height);
+      }
+    }
+  }
 }
 
 function createPlayer(streamName) {
@@ -495,6 +517,12 @@ function createPlayer(streamName) {
       toggleTheatreMode(seat[0]);
     });
 
+    // Add viewer badge click handler
+    newSeat.find('.viewer-count-badge').on('click', function (e) {
+      e.stopPropagation();
+      toggleViewerList(newSeat);
+    });
+
     seatArea.append(newSeat);
     seat = $('#seat-' + streamName);
   }
@@ -505,6 +533,9 @@ function createPlayer(streamName) {
 
   // Stream name is the username, so display it as the header
   seat.parent().find('.streamer-name-header').text(streamName);
+
+  // Notify server we're watching this stream
+  socket.emit('watching stream', { stream_name: streamName });
 
   const playerOption = {
     // image: OME_THUMBNAIL_HOST + '/' + APP_NAME + '/' + streamName + '/thumb.png',
@@ -525,6 +556,20 @@ function createPlayer(streamName) {
   };
 
   const player = OvenPlayer.create(document.getElementById('player-' + streamName), playerOption);
+
+  // Detect aspect ratio when video metadata is loaded
+  player.on('ready', function () {
+    const video = player.getMediaElement();
+    if (video) {
+      const checkDimensions = function () {
+        if (video.videoWidth && video.videoHeight) {
+          applyAspectRatioToSeat(seat, video.videoWidth, video.videoHeight);
+        }
+      };
+      checkDimensions();
+      video.addEventListener('loadedmetadata', checkDimensions);
+    }
+  });
 
   player.on('error', function (error) {
 
@@ -551,6 +596,9 @@ function destroyPlayer(streamName) {
     socket.emit('stream stopped', { stream_name: streamName });
   }
 
+  // Notify we stopped watching this stream
+  socket.emit('stopped watching stream', { stream_name: streamName });
+
   currentStreams = arrayRemove(currentStreams, streamName);
   localStreams = arrayRemove(localStreams, streamName);
 
@@ -573,8 +621,9 @@ function destroyPlayer(streamName) {
   // Completely remove the seat element from the grid
   seat.parent().remove();
 
-  // Clean up local stream owners tracking
+  // Clean up local stream owners and viewers tracking
   delete streamOwners[streamName];
+  delete streamViewers[streamName];
 }
 
 async function getStreams() {
@@ -707,9 +756,28 @@ socket.on('all stream owners', function (data) {
   });
 });
 
-// Request stream owners when connected
+// Request stream owners and viewers when connected
 socket.on('connect', function() {
   socket.emit('get stream owners');
+  socket.emit('get all stream viewers');
+});
+
+// Track stream viewers locally
+let streamViewers = {};
+
+socket.on('stream viewers', function (data) {
+  streamViewers[data.stream_name] = {
+    viewers: data.viewers,
+    count: data.count
+  };
+  updateViewerCount(data.stream_name, data.count, data.viewers);
+});
+
+socket.on('all stream viewers', function (data) {
+  streamViewers = data;
+  Object.keys(data).forEach(function(streamName) {
+    updateViewerCount(streamName, data[streamName].count, data[streamName].viewers);
+  });
 });
 
 function updateStreamerLabel(streamName, username) {
@@ -717,6 +785,33 @@ function updateStreamerLabel(streamName, username) {
   if (seat.length > 0) {
     seat.parent().find('.streamer-name-header').text(username);
   }
+}
+
+function updateViewerCount(streamName, count, viewers) {
+  const seat = $('#seat-' + streamName);
+  if (seat.length > 0) {
+    const streamHeader = seat.parent().find('.stream-header');
+    streamHeader.find('.viewer-count').text(count);
+
+    // Update viewer list content
+    const viewerListContent = streamHeader.find('.viewer-list-content');
+    viewerListContent.empty();
+
+    if (viewers && viewers.length > 0) {
+      viewers.forEach(function(viewer) {
+        viewerListContent.append(
+          '<div class="viewer-item"><i class="fas fa-user"></i>' + viewer + '</div>'
+        );
+      });
+    } else {
+      viewerListContent.append('<div class="no-viewers">No viewers</div>');
+    }
+  }
+}
+
+function toggleViewerList(seatCol) {
+  const popup = seatCol.find('.viewer-list-popup');
+  popup.toggleClass('d-none');
 }
 
 function updateUsersList(users) {
@@ -785,6 +880,13 @@ $(document).on('keydown', function(e) {
 // Backdrop click handler to exit theatre mode
 $('#theatre-backdrop').on('click', function() {
   exitTheatreMode();
+});
+
+// Close viewer popups when clicking outside
+$(document).on('click', function(e) {
+  if (!$(e.target).closest('.viewer-count-badge, .viewer-list-popup').length) {
+    $('.viewer-list-popup').addClass('d-none');
+  }
 });
 
 checkStream();

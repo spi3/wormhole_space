@@ -43,3 +43,7 @@ class User:
     def get_unique_users(self):
         """Return list of unique usernames"""
         return list(set(self.users.values()))
+
+    def get_username(self, session_id):
+        """Return username for a session_id"""
+        return self.users.get(session_id)
