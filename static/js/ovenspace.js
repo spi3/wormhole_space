@@ -26,9 +26,6 @@ const fpsSelect = $('#fps-select');
 const bitrateSelect = $('#bitrate-select');
 const qualitySelect = $('.quality-select');
 
-const rtmpInputUrlInput = $('#rtmp-input-url-input');
-const rtmpInputStreamkeyInput = $('#rtmp-input-streamkey-input');
-const srtInputUrlInput = $('#srt-input-url-input');
 const whipInputUrlInput = $('#whip-input-url-input');
 const waitingRtmpInputText = $('#waiting-rtmp-input-text');
 const connectedRtmpInputText = $('#connected-rtmp-input-text');
@@ -275,11 +272,6 @@ function readyStreaming() {
     rtmpInputPreviewArea.find('button').prop('disabled', false);
     rtmpInputPreviewArea.removeClass('d-none');
     beforeStreamingTitle.text('Send the input stream using a live encoder.');
-
-    rtmpInputUrlInput.val(OME_RTMP_INPUT_URL);
-    rtmpInputStreamkeyInput.val(selectedInputStreamName);
-
-    srtInputUrlInput.val(OME_SRT_INPUT_URL + encodeURIComponent(selectedInputStreamName));
 
     const whipInputUrl = OME_WEBRTC_INPUT_HOST.replace('ws', 'http') + '/' + APP_NAME + '/' + selectedInputStreamName + '?direction=whip&transport=tcp';
     whipInputUrlInput.val(whipInputUrl);
