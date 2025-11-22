@@ -18,6 +18,17 @@
 
   <link rel="stylesheet" href="/static/css/ovenspace.css">
 
+  <!-- Initialize theme before page renders to prevent flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
 </head>
 
 <body class="app">
@@ -28,11 +39,14 @@
         <div class="d-flex align-items-end flex-row">
           <h1 class="m-0">WormholeStreams</h1>
         </div>
-        <div class="mt-3 text-end mt-sm-0">
-          Viewers:
-          <span id="total-user-count-span" class="fw-bold">0</span>
-          <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#usersModal">
+        <div class="mt-3 text-end mt-sm-0 d-flex align-items-center justify-content-end gap-2">
+          <span>Viewers:
+          <span id="total-user-count-span" class="fw-bold">0</span></span>
+          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#usersModal">
             <i class="fas fa-users"></i>
+          </button>
+          <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
           </button>
         </div>
       </div>
@@ -276,6 +290,40 @@
   <script src="https://cdn.jsdelivr.net/npm/ovenplayer/dist/ovenplayer.js"></script>
 
   <script src="/static/js/ovenspace.js"></script>
+
+  <!-- Theme toggle functionality -->
+  <script>
+    (function() {
+      const themeToggle = document.getElementById('theme-toggle');
+      const icon = themeToggle.querySelector('i');
+
+      function updateIcon(theme) {
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+      }
+
+      // Set initial icon state
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      updateIcon(currentTheme);
+
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', newTheme);
+          updateIcon(newTheme);
+        }
+      });
+    })();
+  </script>
 
 </body>
 
