@@ -419,6 +419,34 @@ function getDisplayConstraints() {
   return newConstraint;
 }
 
+function getAspectRatioClass(width, height) {
+  if (!width || !height) return 'ratio-16x9';
+
+  const ratio = width / height;
+
+  // Determine best matching aspect ratio
+  if (ratio >= 3.4) {
+    return 'ratio-32x9';      // Super ultrawide (32:9 ~ 3.56)
+  } else if (ratio >= 2.2) {
+    return 'ratio-21x9';      // Ultrawide (21:9 ~ 2.33)
+  } else if (ratio >= 1.6) {
+    return 'ratio-16x9';      // Standard widescreen (16:9 ~ 1.78)
+  } else if (ratio >= 1.2) {
+    return 'ratio-4x3';       // Classic (4:3 ~ 1.33)
+  } else if (ratio >= 0.9) {
+    return 'ratio-1x1';       // Square (1:1)
+  } else {
+    return 'ratio-9x16';      // Vertical/Portrait (9:16 ~ 0.56)
+  }
+}
+
+function applyAspectRatioToSeat(seat, width, height) {
+  const ratioClass = getAspectRatioClass(width, height);
+  seat.removeClass('ratio-16x9 ratio-21x9 ratio-32x9 ratio-4x3 ratio-1x1 ratio-9x16');
+  seat.addClass(ratioClass);
+  console.log('Applied aspect ratio:', ratioClass, 'for', width, 'x', height);
+}
+
 function createLocalPlayer(streamName) {
 
   let seat = $('#seat-' + streamName);
@@ -475,14 +503,26 @@ function createLocalPlayer(streamName) {
 
   // Detect aspect ratio from video track
   const stream = liveKitInputMap[streamName].inputStream;
+  let dimensionsApplied = false;
+
   if (stream) {
     const videoTrack = stream.getVideoTracks()[0];
     if (videoTrack) {
       const settings = videoTrack.getSettings();
       if (settings.width && settings.height) {
         applyAspectRatioToSeat(seat, settings.width, settings.height);
+        dimensionsApplied = true;
       }
     }
+  }
+
+  // Fallback: check video element dimensions after it loads
+  if (!dimensionsApplied) {
+    localVideo.addEventListener('loadedmetadata', function() {
+      if (localVideo.videoWidth && localVideo.videoHeight) {
+        applyAspectRatioToSeat(seat, localVideo.videoWidth, localVideo.videoHeight);
+      }
+    });
   }
 }
 
@@ -561,13 +601,30 @@ function createPlayer(streamName) {
   player.on('ready', function () {
     const video = player.getMediaElement();
     if (video) {
+      let dimensionsApplied = false;
       const checkDimensions = function () {
-        if (video.videoWidth && video.videoHeight) {
+        if (!dimensionsApplied && video.videoWidth && video.videoHeight) {
           applyAspectRatioToSeat(seat, video.videoWidth, video.videoHeight);
+          dimensionsApplied = true;
         }
       };
+
+      // Check immediately
       checkDimensions();
+
+      // Listen for metadata load
       video.addEventListener('loadedmetadata', checkDimensions);
+
+      // For WebRTC streams, dimensions may not be immediately available
+      // Poll a few times to catch them
+      let attempts = 0;
+      const pollInterval = setInterval(function() {
+        checkDimensions();
+        attempts++;
+        if (dimensionsApplied || attempts >= 10) {
+          clearInterval(pollInterval);
+        }
+      }, 500);
     }
   });
 
