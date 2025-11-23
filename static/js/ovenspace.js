@@ -1,6 +1,18 @@
 let currentStreams = [];
 let localStreams = [];
 let selectedInputStreamName = null;
+
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')        // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')    // Remove non-word chars (except -)
+    .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+    .replace(/^-+/, '')          // Trim - from start
+    .replace(/-+$/, '');         // Trim - from end
+}
 let shareMode = null;
 let liveKitInputMap = {};
 let tryToStreaming = false;
@@ -112,8 +124,8 @@ startShareButton.on('click', function () {
 
 startStreamButton.on('click', function () {
 
-  // Use the username as the stream name
-  selectedInputStreamName = CURRENT_USERNAME;
+  // Use the username as the stream name (slugified for URL safety)
+  selectedInputStreamName = slugify(CURRENT_USERNAME);
 
   inputDeviceModal.modal('show');
 });
@@ -572,7 +584,7 @@ function createPlayer(streamName) {
   const playerOption = {
     // image: OME_THUMBNAIL_HOST + '/' + APP_NAME + '/' + streamName + '/thumb.png',
     autoFallback: false,
-    autoStart: true,
+    autoStart: false,
     sources: [
       {
         label: 'WebRTC',
