@@ -33,6 +33,8 @@
 
 <body class="app">
   <div id="theatre-backdrop" class="theatre-backdrop"></div>
+  <div id="multi-theatre-backdrop" class="multi-theatre-backdrop"></div>
+  <div id="multi-theatre-container" class="multi-theatre-container"></div>
   <div class="app-wrapper d-flex flex-column">
     <div class="header">
       <div class=" container d-flex flex-column flex-sm-row align-items-sm-end justify-content-between py-4">
@@ -44,6 +46,12 @@
           <span id="total-user-count-span" class="fw-bold">0</span></span>
           <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#usersModal">
             <i class="fas fa-users"></i>
+          </button>
+          <button id="multi-select-toggle" class="btn btn-sm btn-outline-secondary d-none" title="Multi-select mode">
+            <i class="fas fa-check-square"></i> Select
+          </button>
+          <button id="enter-multi-theater" class="btn btn-sm btn-warning d-none" title="Enter multi-theater mode">
+            <i class="fas fa-expand"></i> Multi-Theater
           </button>
           <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
             <i class="fas fa-moon"></i>
@@ -241,6 +249,9 @@
         </div>
       </div>
       <div id="seat-<%= streamName %>" class="seat mb-4 ratio ratio-16x9">
+        <div class="multi-select-checkbox">
+          <input type="checkbox" class="form-check-input" data-stream="<%= streamName %>">
+        </div>
         <button class="theatre-mode-button btn btn-sm btn-dark" title="Theatre Mode">
           <i class="fas fa-expand"></i>
         </button>

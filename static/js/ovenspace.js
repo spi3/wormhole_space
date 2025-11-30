@@ -769,6 +769,7 @@ function gotStreams(resp) {
     currentStreams = streams;
 
     videoUserCountSpan.text(currentStreams.length);
+    updateMultiSelectButtonVisibility();
   }
 }
 
@@ -894,6 +895,11 @@ function updateUsersList(users) {
 // Theatre Mode functionality
 let currentTheatreMode = null;
 
+// Multi-Theatre Mode functionality
+let multiSelectMode = false;
+let selectedStreams = [];
+let currentMultiTheatreMode = false;
+
 function enterTheatreMode(seatElement) {
   if (currentTheatreMode) {
     exitTheatreMode();
@@ -931,13 +937,6 @@ function toggleTheatreMode(seatElement) {
 
 // Don't render static seats anymore - seats will be created dynamically when streams appear
 
-// ESC key handler to exit theatre mode
-$(document).on('keydown', function(e) {
-  if (e.key === 'Escape' && currentTheatreMode) {
-    exitTheatreMode();
-  }
-});
-
 // Backdrop click handler to exit theatre mode
 $('#theatre-backdrop').on('click', function() {
   exitTheatreMode();
@@ -949,6 +948,243 @@ $(document).on('click', function(e) {
     $('.viewer-list-popup').addClass('d-none');
   }
 });
+
+// Multi-Theatre Mode Functions
+function toggleMultiSelectMode() {
+  multiSelectMode = !multiSelectMode;
+
+  if (multiSelectMode) {
+    $('#multi-select-toggle').addClass('active');
+    $('.multi-select-checkbox').addClass('visible');
+    updateMultiTheaterButton();
+  } else {
+    $('#multi-select-toggle').removeClass('active');
+    $('.multi-select-checkbox').removeClass('visible');
+    $('.multi-select-checkbox input').prop('checked', false);
+    selectedStreams = [];
+    $('#enter-multi-theater').addClass('d-none');
+  }
+}
+
+function updateMultiTheaterButton() {
+  if (selectedStreams.length >= 2) {
+    $('#enter-multi-theater').removeClass('d-none');
+    $('#enter-multi-theater').find('span').remove();
+    $('#enter-multi-theater').append('<span class="ms-1">(' + selectedStreams.length + ')</span>');
+  } else {
+    $('#enter-multi-theater').addClass('d-none');
+  }
+}
+
+function getMultiTheaterLayout(count) {
+  // Determine optimal grid layout based on stream count
+  if (count === 2) {
+    return { cols: 2, rows: 1 }; // 2x1 side-by-side
+  } else if (count === 3) {
+    return { cols: 3, rows: 1 }; // 3x1
+  } else if (count === 4) {
+    return { cols: 2, rows: 2 }; // 2x2 grid
+  } else if (count <= 6) {
+    return { cols: 3, rows: 2 }; // 3x2 grid
+  } else if (count <= 9) {
+    return { cols: 3, rows: 3 }; // 3x3 grid
+  } else {
+    return { cols: 4, rows: Math.ceil(count / 4) }; // 4xN grid
+  }
+}
+
+function enterMultiTheatreMode() {
+  if (currentMultiTheatreMode || selectedStreams.length < 2) {
+    return;
+  }
+
+  // Exit single theater mode if active
+  if (currentTheatreMode) {
+    exitTheatreMode();
+  }
+
+  currentMultiTheatreMode = true;
+  const layout = getMultiTheaterLayout(selectedStreams.length);
+  const container = $('#multi-theatre-container');
+  container.empty();
+
+  // Calculate dimensions
+  const cellWidth = 100 / layout.cols;
+  const cellHeight = 100 / layout.rows;
+
+  // Move selected seats into multi-theater container (not clone - we need the actual players!)
+  selectedStreams.forEach((streamName) => {
+    const originalSeat = $('#seat-' + streamName);
+    const originalCol = originalSeat.parent();
+
+    // Store original parent and index for restoration
+    originalCol.data('multi-theatre-original-parent', originalCol.parent());
+    originalCol.data('multi-theatre-original-index', originalCol.index());
+
+    // Detach from original location
+    originalCol.detach();
+
+    // Style the seat for multi-theater grid
+    originalCol.css({
+      width: cellWidth + '%',
+      height: cellHeight + '%',
+      maxWidth: 'none',
+      position: 'relative',
+      flex: 'none'
+    });
+
+    originalSeat.css({
+      width: '100%',
+      height: '100%',
+      margin: '0'
+    });
+
+    // Hide checkboxes and single theater button in multi-theater mode
+    originalCol.find('.multi-select-checkbox').hide();
+    originalCol.find('.theatre-mode-button').hide();
+
+    // Add marker class
+    originalCol.addClass('multi-theatre-moved');
+
+    container.append(originalCol);
+  });
+
+  // Show backdrop and container
+  $('#multi-theatre-backdrop').addClass('active');
+  container.addClass('active');
+
+  // Disable body scroll
+  $('body').css('overflow', 'hidden');
+
+  // Exit multi-select mode
+  multiSelectMode = false;
+  $('#multi-select-toggle').removeClass('active');
+  $('.multi-select-checkbox').removeClass('visible');
+  $('#enter-multi-theater').addClass('d-none');
+}
+
+function exitMultiTheatreMode() {
+  if (!currentMultiTheatreMode) {
+    return;
+  }
+
+  currentMultiTheatreMode = false;
+
+  // Move seats back to their original positions
+  $('.multi-theatre-moved').each(function() {
+    const col = $(this);
+    const originalParent = col.data('multi-theatre-original-parent');
+    const originalIndex = col.data('multi-theatre-original-index');
+
+    // Remove multi-theater styling
+    col.css({
+      width: '',
+      height: '',
+      maxWidth: '',
+      position: '',
+      flex: ''
+    });
+
+    col.find('.seat').css({
+      width: '',
+      height: '',
+      margin: ''
+    });
+
+    // Show checkboxes and theater button again
+    col.find('.multi-select-checkbox').show();
+    col.find('.theatre-mode-button').show();
+
+    // Detach and reinsert at original position
+    col.detach();
+    col.removeClass('multi-theatre-moved');
+
+    // Reinsert at the original index
+    const siblings = originalParent.children();
+    if (originalIndex >= siblings.length) {
+      originalParent.append(col);
+    } else {
+      siblings.eq(originalIndex).before(col);
+    }
+
+    // Clean up data
+    col.removeData('multi-theatre-original-parent');
+    col.removeData('multi-theatre-original-index');
+  });
+
+  // Clear and hide container
+  $('#multi-theatre-container').empty().removeClass('active');
+  $('#multi-theatre-backdrop').removeClass('active');
+
+  // Re-enable body scroll
+  $('body').css('overflow', '');
+
+  // Clear selections
+  $('.multi-select-checkbox input').prop('checked', false);
+  selectedStreams = [];
+}
+
+// Multi-select toggle button handler
+$('#multi-select-toggle').on('click', function() {
+  toggleMultiSelectMode();
+});
+
+// Multi-theater enter button handler
+$('#enter-multi-theater').on('click', function() {
+  enterMultiTheatreMode();
+});
+
+// Multi-theater backdrop click handler
+$('#multi-theatre-backdrop').on('click', function() {
+  exitMultiTheatreMode();
+});
+
+// Checkbox change handler (delegated for dynamic content)
+$(document).on('change', '.multi-select-checkbox input', function() {
+  const streamName = $(this).data('stream');
+
+  if ($(this).is(':checked')) {
+    if (!selectedStreams.includes(streamName)) {
+      selectedStreams.push(streamName);
+    }
+  } else {
+    selectedStreams = selectedStreams.filter(s => s !== streamName);
+  }
+
+  updateMultiTheaterButton();
+});
+
+// Update keyboard shortcuts
+$(document).on('keydown', function(e) {
+  // ESC key handler for both modes
+  if (e.key === 'Escape') {
+    if (currentMultiTheatreMode) {
+      exitMultiTheatreMode();
+    } else if (currentTheatreMode) {
+      exitTheatreMode();
+    }
+  }
+
+  // 'M' key to toggle multi-theater for selected streams
+  if (e.key === 'm' || e.key === 'M') {
+    if (!currentMultiTheatreMode && !currentTheatreMode) {
+      if (selectedStreams.length >= 2) {
+        enterMultiTheatreMode();
+      } else if (!multiSelectMode) {
+        toggleMultiSelectMode();
+      }
+    }
+  }
+});
+
+// Show multi-select button when there are 2+ streams
+function updateMultiSelectButtonVisibility() {
+  if (currentStreams.length >= 2) {
+    $('#multi-select-toggle').removeClass('d-none');
+  } else {
+    $('#multi-select-toggle').addClass('d-none');
+  }
+}
 
 checkStream();
 

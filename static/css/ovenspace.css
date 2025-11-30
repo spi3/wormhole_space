@@ -516,3 +516,113 @@ h6 {
 [data-theme="dark"] .text-muted {
     color: var(--ovenspace-text-secondary) !important;
 }
+
+/* Multi-Theatre Mode Styles */
+.multi-select-checkbox {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 11;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.multi-select-checkbox.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Hide theatre mode button when multi-select is active */
+.multi-select-checkbox.visible ~ .theatre-mode-button {
+    display: none;
+}
+
+.multi-select-checkbox input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    border: 2px solid #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.multi-select-checkbox input[type="checkbox"]:checked {
+    background-color: var(--ovenspace-accent);
+    border-color: var(--ovenspace-accent);
+}
+
+#multi-select-toggle.active {
+    background-color: var(--ovenspace-accent);
+    border-color: var(--ovenspace-accent);
+    color: #1a1a1a;
+}
+
+.multi-theatre-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    z-index: 10000;
+    display: none;
+}
+
+.multi-theatre-backdrop.active {
+    display: block;
+}
+
+.multi-theatre-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10001;
+    display: none;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+}
+
+.multi-theatre-container.active {
+    display: flex;
+}
+
+.multi-theatre-container .col-6,
+.multi-theatre-container .col-md-6,
+.multi-theatre-container .col-lg-4 {
+    padding: 0.25rem;
+}
+
+.multi-theatre-container .seat {
+    border-radius: 0;
+}
+
+.multi-theatre-container .stream-header {
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.multi-theatre-container .streamer-name-header {
+    font-size: 1rem;
+}
+
+.multi-theatre-container .viewer-count-badge {
+    font-size: 0.85rem;
+}
+
+/* Exit hint in multi-theater mode */
+.multi-theatre-container::before {
+    content: 'Press ESC to exit';
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    z-index: 10002;
+    pointer-events: none;
+}
