@@ -8,6 +8,8 @@ services:
       - "5100:5100"
     environment:
       - FLASK_ENV=production
+      # Optional: Specify custom config file location
+      # - OVENSPACE_CONFIG=/app/ovenspace.cfg
     extra_hosts:
       - "ome.unimatrix0.cloud:10.10.10.130"
     volumes:

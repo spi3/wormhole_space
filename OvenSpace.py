@@ -1,4 +1,6 @@
 import base64
+import os
+import sys
 import requests
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
@@ -7,7 +9,32 @@ from urllib import parse
 from components.user import User
 
 app = Flask(__name__)
-app.config.from_pyfile('ovenspace.cfg')
+
+# Get config file path from environment variable or use default
+config_path = os.getenv('OVENSPACE_CONFIG', 'ovenspace.cfg')
+
+# Resolve to absolute path
+config_path = os.path.abspath(config_path)
+
+# Verify config file exists
+if not os.path.isfile(config_path):
+    print(f"ERROR: Configuration file not found: {config_path}", file=sys.stderr)
+    if os.getenv('OVENSPACE_CONFIG'):
+        print(f"       OVENSPACE_CONFIG is set to: {os.getenv('OVENSPACE_CONFIG')}", file=sys.stderr)
+    else:
+        print(f"       Using default: ovenspace.cfg", file=sys.stderr)
+    print(f"       Working directory: {os.getcwd()}", file=sys.stderr)
+    sys.exit(1)
+
+# Load configuration
+try:
+    app.config.from_pyfile(config_path)
+    print(f"Loaded configuration from: {config_path}")
+except Exception as e:
+    print(f"ERROR: Failed to load config: {config_path}", file=sys.stderr)
+    print(f"       {str(e)}", file=sys.stderr)
+    sys.exit(1)
+
 socketio = SocketIO(app, cors_allowed_origins="*", async_handlers=True)
 
 
