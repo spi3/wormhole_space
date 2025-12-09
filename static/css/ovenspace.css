@@ -580,13 +580,15 @@ h6 {
     height: 100vh;
     z-index: 10001;
     display: none;
-    flex-wrap: wrap;
     padding: 0;
     margin: 0;
 }
 
 .multi-theatre-container.active {
     display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
 }
 
 .multi-theatre-container .col-6,

@@ -62,10 +62,29 @@ def encode_access_token(token):
         .decode('utf-8')
 
 
-OME_HOST = app.config['OME_HOST']
+# Host Configuration with Fallback Chain
+_ome_api_host = app.config.get('OME_API_HOST')
+_ome_client_host = app.config.get('OME_CLIENT_HOST')
+_ome_host_legacy = app.config.get('OME_HOST')
+
+# Resolve API host: explicit API > client > legacy
+if _ome_api_host:
+    OME_API_HOST_RESOLVED = _ome_api_host
+elif _ome_client_host:
+    OME_API_HOST_RESOLVED = _ome_client_host
+else:
+    OME_API_HOST_RESOLVED = _ome_host_legacy
+
+# Resolve client host: explicit client > API > legacy
+if _ome_client_host:
+    OME_CLIENT_HOST_RESOLVED = _ome_client_host
+elif _ome_api_host:
+    OME_CLIENT_HOST_RESOLVED = _ome_api_host
+else:
+    OME_CLIENT_HOST_RESOLVED = _ome_host_legacy
 
 OME_API_PROTOCOL = get_http_protocol(app.config['OME_API_ENABLE_TLS'])
-OME_API_HOST = f'{OME_API_PROTOCOL}://{OME_HOST}:{app.config["OME_API_PORT"]}/v1'
+OME_API_HOST = f'{OME_API_PROTOCOL}://{OME_API_HOST_RESOLVED}:{app.config["OME_API_PORT"]}/v1'
 OME_API_AUTH_HEADER = {'authorization': 'Basic ' +
                                         encode_access_token(app.config['OME_API_ACCESS_TOKEN'])}
 
@@ -76,23 +95,22 @@ OME_STREAM_NAME = app.config['OME_STREAM_NAME']
 OME_API_GET_STREAMS = OME_API_HOST + \
                       f'/vhosts/{OME_VHOST_NAME}/apps/{OME_APP_NAME}/streams'
 
-OME_RTMP_INPUT_URL = f'rtmp://{OME_HOST}:{ app.config["OME_RTMP_PROVIDER_PORT"]}/{OME_APP_NAME}'
+OME_RTMP_INPUT_URL = f'rtmp://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_RTMP_PROVIDER_PORT"]}/{OME_APP_NAME}'
 
-
-percent_encoded_stream_id = parse.quote(f'srt://{OME_HOST}:{ app.config["OME_SRT_PROVIDER_PORT"]}/{OME_APP_NAME}/', safe='')
-OME_SRT_INPUT_URL = f'srt://{OME_HOST}:{ app.config["OME_SRT_PROVIDER_PORT"]}?streamid={percent_encoded_stream_id}'
+percent_encoded_stream_id = parse.quote(f'srt://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_SRT_PROVIDER_PORT"]}/{OME_APP_NAME}/', safe='')
+OME_SRT_INPUT_URL = f'srt://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_SRT_PROVIDER_PORT"]}?streamid={percent_encoded_stream_id}'
 
 OME_WEBRTC_INPUT_PROTOCOL = get_ws_protocol(
     app.config['OME_WEBRTC_PROVIDER_ENABLE_TLS'])
-OME_WEBRTC_INPUT_HOST = f'{OME_WEBRTC_INPUT_PROTOCOL}://{OME_HOST}:{app.config["OME_WEBRTC_PROVIDER_PORT"]}'
+OME_WEBRTC_INPUT_HOST = f'{OME_WEBRTC_INPUT_PROTOCOL}://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_WEBRTC_PROVIDER_PORT"]}'
 
 OME_WEBRTC_STREAMING_PROTOCOL = get_ws_protocol(
     app.config['OME_WEBRTC_PUBLISHER_ENABLE_TLS'])
-OME_WEBRTC_STREAMING_HOST = f'{OME_WEBRTC_STREAMING_PROTOCOL}://{OME_HOST}:{app.config["OME_WEBRTC_PUBLISHER_PORT"]}'
+OME_WEBRTC_STREAMING_HOST = f'{OME_WEBRTC_STREAMING_PROTOCOL}://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_WEBRTC_PUBLISHER_PORT"]}'
 
 OME_LLHLS_STREAMING_PROTOCOL = get_http_protocol(
     app.config['OME_LLHLS_PUBLISHER_ENABLE_TLS'])
-OME_LLHLS_STREAMING_HOST = f'{OME_LLHLS_STREAMING_PROTOCOL}://{OME_HOST}:{app.config["OME_LLHLS_PUBLISHER_PORT"]}'
+OME_LLHLS_STREAMING_HOST = f'{OME_LLHLS_STREAMING_PROTOCOL}://{OME_CLIENT_HOST_RESOLVED}:{app.config["OME_LLHLS_PUBLISHER_PORT"]}'
 
 SITE_HOST = app.config['SITE_HOST']
 SITE_PORT = app.config['SITE_PORT']

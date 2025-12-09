@@ -1025,19 +1025,35 @@ function enterMultiTheatreMode() {
     originalCol.detach();
 
     // Style the seat for multi-theater grid
-    originalCol.css({
+    // For single-row layouts, use auto height to allow vertical centering
+    const gridStyles = {
       width: cellWidth + '%',
-      height: cellHeight + '%',
       maxWidth: 'none',
       position: 'relative',
       flex: 'none'
-    });
+    };
 
-    originalSeat.css({
+    if (layout.rows === 1) {
+      gridStyles.height = 'auto';
+    } else {
+      gridStyles.height = cellHeight + '%';
+    }
+
+    originalCol.css(gridStyles);
+
+    // For single-row layouts, use auto height on the seat too
+    const seatStyles = {
       width: '100%',
-      height: '100%',
       margin: '0'
-    });
+    };
+
+    if (layout.rows === 1) {
+      seatStyles.height = 'auto';
+    } else {
+      seatStyles.height = '100%';
+    }
+
+    originalSeat.css(seatStyles);
 
     // Hide checkboxes and single theater button in multi-theater mode
     originalCol.find('.multi-select-checkbox').hide();
