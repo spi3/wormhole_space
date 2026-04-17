@@ -1,0 +1,13 @@
+<header class="topbar site-topbar">
+  <a class="brand" href="{{ url_for('landing') }}">
+    <span class="brand-mark">TW</span>
+    <span class="brand-copy">
+      <strong>The Wormhole</strong>
+      <span>Low-latency relay workspace</span>
+    </span>
+  </a>
+  <nav class="topbar-actions" aria-label="Primary">
+    <a class="nav-link{% if active_page == 'overview' %} active{% endif %}" href="{{ url_for('landing') }}"{% if active_page == 'overview' %} aria-current="page"{% endif %}>Overview</a>
+    <a class="nav-link{% if active_page == 'live' %} active{% endif %}" href="{{ url_for('space') }}"{% if active_page == 'live' %} aria-current="page"{% endif %}>Live room</a>
+  </nav>
+</header>

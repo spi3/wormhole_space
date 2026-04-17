@@ -20,19 +20,8 @@
 
 <body>
   <div class="landing-page">
-    <header class="topbar site-topbar landing-topbar reveal-up">
-      <a class="brand" href="{{ url_for('landing') }}">
-        <span class="brand-mark">TW</span>
-        <span class="brand-copy">
-          <strong>The Wormhole</strong>
-          <span>Low-latency relay workspace</span>
-        </span>
-      </a>
-      <nav class="topbar-actions">
-        <a class="nav-link active" href="{{ url_for('landing') }}" aria-current="page">Overview</a>
-        <a class="nav-link" href="{{ url_for('space') }}">Live room</a>
-      </nav>
-    </header>
+    {% set active_page = 'overview' %}
+    {% include '_site_topbar.html' %}
 
     <main>
       <section class="landing-hero">

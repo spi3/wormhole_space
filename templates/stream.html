@@ -27,21 +27,10 @@
   <div id="multi-theatre-backdrop" class="multi-theatre-backdrop"></div>
   <div id="multi-theatre-container" class="multi-theatre-container"></div>
   <div class="app-wrapper d-flex flex-column">
-    <div class="stream-shell">
-      <header class="topbar site-topbar stream-topbar">
-        <a class="brand" href="{{ url_for('landing') }}">
-          <span class="brand-mark">TW</span>
-          <span class="brand-copy">
-            <strong>The Wormhole</strong>
-            <span>Low-latency relay workspace</span>
-          </span>
-        </a>
-        <nav class="topbar-actions">
-          <a class="nav-link" href="{{ url_for('landing') }}">Overview</a>
-          <a class="nav-link active" href="{{ url_for('space') }}" aria-current="page">Live room</a>
-        </nav>
-      </header>
+    {% set active_page = 'live' %}
+    {% include '_site_topbar.html' %}
 
+    <div class="stream-shell">
       <section class="surface-shell stream-hero">
         <div class="stream-hero-media" aria-hidden="true"></div>
         <div class="stream-hero-content">
