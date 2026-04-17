@@ -539,16 +539,19 @@ h6 {
 }
 
 .stream-shell {
+    width: 100%;
+    padding-top: 18px;
+}
+
+.stream-hero,
+.workspace-shell {
     width: min(1120px, calc(100% - 32px));
     max-width: 1120px;
-    padding-top: 18px;
-    padding-left: 0;
-    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .stream-topbar {
-    position: relative;
-    z-index: 2;
     margin-bottom: 12px;
 }
 
@@ -712,8 +715,13 @@ h6 {
 
 @media (max-width: 640px) {
     .stream-shell {
-        width: min(100% - 24px, 1120px);
         padding-top: 14px;
+    }
+
+    .site-topbar,
+    .stream-hero,
+    .workspace-shell {
+        width: min(100% - 24px, 1120px);
     }
 
     .stream-hero-content {

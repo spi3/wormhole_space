@@ -23,6 +23,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -92,8 +94,17 @@ img {
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 18px;
+}
+
+.site-topbar {
+  position: relative;
+  z-index: 3;
+  width: min(1120px, calc(100% - 32px));
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 0 0;
 }
 
 .topbar-actions {
@@ -101,6 +112,7 @@ img {
   align-items: center;
   gap: 18px;
   flex-wrap: wrap;
+  margin-left: auto;
 }
 
 .brand {

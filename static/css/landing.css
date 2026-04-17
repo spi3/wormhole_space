@@ -3,11 +3,6 @@
 }
 
 .landing-topbar {
-  position: relative;
-  z-index: 3;
-  width: min(1120px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 18px 0 0;
 }
 
 .landing-hero {
@@ -157,7 +152,7 @@
 }
 
 @media (max-width: 640px) {
-  .landing-topbar,
+  .site-topbar,
   .landing-hero-inner,
   .landing-sections {
     width: min(100% - 24px, 1120px);
