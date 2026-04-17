@@ -160,7 +160,7 @@ img {
 }
 
 .brand-copy span,
-.nav-link,
+.topbar-link,
 .meta-text,
 .ink-soft {
   color: var(--ink-soft);
@@ -170,25 +170,30 @@ img {
   font-size: 0.9rem;
 }
 
-.nav-link {
+.topbar-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
   position: relative;
   text-decoration: none;
   font-family: var(--font-display);
   font-size: 0.92rem;
   font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
   transition: color 150ms ease;
 }
 
-.nav-link::after {
+.topbar-link::after {
   display: none;
 }
 
-.nav-link:hover,
-.nav-link:focus-visible {
+.topbar-link:hover,
+.topbar-link:focus-visible {
   color: var(--ink);
 }
 
-.nav-link.active {
+.topbar-link.is-active {
   color: var(--accent-soft);
 }
 
@@ -295,6 +300,10 @@ button.button:focus-visible {
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .topbar-actions {
+    margin-left: 0;
   }
 }
 
