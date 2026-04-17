@@ -13,7 +13,7 @@
   <link rel="shortcut icon" href="/static/img/ovenspace.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/wormhole-ui.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
 </head>
@@ -25,13 +25,12 @@
         <span class="brand-mark">TW</span>
         <span class="brand-copy">
           <strong>The Wormhole</strong>
-          <span>Realtime streaming workspace</span>
+          <span>Low-latency relay workspace</span>
         </span>
       </a>
       <nav class="topbar-actions">
         <a class="nav-link active" href="{{ url_for('landing') }}" aria-current="page">Overview</a>
         <a class="nav-link" href="{{ url_for('space') }}">Live room</a>
-        <a class="nav-link" href="{{ url_for('get_streams') }}">Inventory JSON</a>
       </nav>
     </header>
 
@@ -39,14 +38,14 @@
       <section class="landing-hero">
         <div class="landing-hero-inner">
           <div class="landing-copy">
-            <div class="eyebrow reveal-up delay-1">Professional low-latency streaming workspace</div>
+            <div class="eyebrow reveal-up delay-1">low-latency relay / live workspace</div>
             <h1 class="reveal-up delay-2">The Wormhole</h1>
             <p class="hero-support reveal-up delay-3">
-              Broadcast, monitor, and coordinate from a live room built for real-time operation instead of demo-page theater.
+              A quiet front door for a live room built to relay video, monitor sessions, and stay out of the way.
             </p>
             <div class="cta-row reveal-up delay-3">
               <a class="button button-primary motion-pulse" href="{{ url_for('space') }}">Enter live room</a>
-              <a class="button button-secondary" href="#workflow">See the workflow</a>
+              <a class="button button-secondary" href="#workflow">Read the layout</a>
             </div>
           </div>
         </div>
@@ -54,22 +53,22 @@
 
       <div class="landing-sections">
         <section id="workflow" class="landing-section">
-          <h2>Built for three jobs.</h2>
+          <h2>Three jobs. Nothing extra.</h2>
           <p class="section-copy">
-            The Wormhole is designed to give operators a clean front door, a fast route into the live room, and a workspace that stays focused once the stream is running.
+            The point is simple: a clean entry, a fast path into the room, and an interface that keeps its mouth shut once the stream is live.
           </p>
           <div class="flow-grid">
             <div class="flow-step">
               <h3>Enter cleanly</h3>
-              <p>The homepage sets the context quickly, then gets out of the way so visitors can move straight into the live room.</p>
+              <p>The homepage gives enough context to orient people, then stops talking.</p>
             </div>
             <div class="flow-step">
               <h3>Go live fast</h3>
-              <p>Use camera, screen share, or an external encoder without bouncing between mismatched surfaces.</p>
+              <p>Start from camera, screen share, or an external encoder without jumping across mismatched UI.</p>
             </div>
             <div class="flow-step">
               <h3>Operate live</h3>
-              <p>Watch active feeds, monitor viewers, and switch into theater modes when the job needs tighter focus.</p>
+              <p>Watch feeds, check audience state, and move into focused viewing only when the job calls for it.</p>
             </div>
           </div>
         </section>
@@ -77,9 +76,9 @@
         <section class="landing-section">
           <div class="section-callout">
             <div>
-              <h2>The live room is the product.</h2>
+              <h2>The live room is the point.</h2>
               <p class="section-copy">
-                The landing page exists to orient people. The real work happens in the live room, where playback, ingest, and audience visibility belong together.
+                The landing page is just the threshold. The real work happens in the live room, where playback, ingest, and audience visibility sit in one place.
               </p>
             </div>
             <div class="cta-row">
