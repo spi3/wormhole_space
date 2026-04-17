@@ -35,6 +35,34 @@ except Exception as e:
     print(f"       {str(e)}", file=sys.stderr)
     sys.exit(1)
 
+# Allow runtime environment variables to override file-based config.
+ENV_OVERRIDE_KEYS = (
+    'OME_HOST',
+    'OME_API_HOST',
+    'OME_CLIENT_HOST',
+    'OME_API_ENABLE_TLS',
+    'OME_API_PORT',
+    'OME_API_ACCESS_TOKEN',
+    'OME_VHOST_NAME',
+    'OME_APP_NAME',
+    'OME_STREAM_NAME',
+    'OME_RTMP_PROVIDER_PORT',
+    'OME_SRT_PROVIDER_PORT',
+    'OME_WEBRTC_PROVIDER_ENABLE_TLS',
+    'OME_WEBRTC_PROVIDER_PORT',
+    'OME_WEBRTC_PUBLISHER_ENABLE_TLS',
+    'OME_WEBRTC_PUBLISHER_PORT',
+    'OME_LLHLS_PUBLISHER_ENABLE_TLS',
+    'OME_LLHLS_PUBLISHER_PORT',
+    'SITE_HOST',
+    'SITE_PORT',
+)
+
+for key in ENV_OVERRIDE_KEYS:
+    value = os.getenv(key)
+    if value not in (None, ''):
+        app.config[key] = value
+
 socketio = SocketIO(app, cors_allowed_origins="*", async_handlers=True)
 
 

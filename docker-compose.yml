@@ -8,10 +8,11 @@ services:
       - "5100:5100"
     environment:
       - FLASK_ENV=production
+      - OME_API_HOST=${OME_API_HOST:-ovenmediaengine}
+      - OME_CLIENT_HOST=${OME_CLIENT_HOST:-localhost}
+      - SITE_HOST=${SITE_HOST:-localhost}
       # Optional: Specify custom config file location
       # - OVENSPACE_CONFIG=/app/ovenspace.cfg
-    extra_hosts:
-      - "ome.unimatrix0.cloud:10.10.10.130"
     volumes:
       - ./ovenspace.cfg:/app/ovenspace.cfg:ro
     depends_on:
