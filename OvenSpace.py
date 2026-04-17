@@ -127,21 +127,31 @@ stream_viewers = {}
 session_watching = {}
 
 
+def get_request_username():
+    return request.headers.get('X-Auth-User', '').strip() or 'Anonymous'
+
+
+def get_stream_template_context():
+    return {
+        'app_name': OME_APP_NAME,
+        'stream_name': OME_STREAM_NAME,
+        'rtmp_input_url': OME_RTMP_INPUT_URL,
+        'srt_input_url': OME_SRT_INPUT_URL,
+        'webrtc_input_host': OME_WEBRTC_INPUT_HOST,
+        'webrtc_streaming_host': OME_WEBRTC_STREAMING_HOST,
+        'llhls_streaming_host': OME_LLHLS_STREAMING_HOST,
+        'username': get_request_username(),
+    }
+
+
 @app.route("/")
+def landing():
+    return render_template('index.html', username=get_request_username())
+
+
+@app.route("/stream", strict_slashes=False)
 def space():
-    # Get username from header for this user
-    username = request.headers.get('X-Auth-User', '').strip() or 'Anonymous'
-    return render_template(
-        'index.html',
-        app_name=OME_APP_NAME,
-        stream_name=OME_STREAM_NAME,
-        rtmp_input_url=OME_RTMP_INPUT_URL,
-        srt_input_url=OME_SRT_INPUT_URL,
-        webrtc_input_host=OME_WEBRTC_INPUT_HOST,
-        webrtc_streaming_host=OME_WEBRTC_STREAMING_HOST,
-        llhls_streaming_host=OME_LLHLS_STREAMING_HOST,
-        username=username
-    )
+    return render_template('stream.html', **get_stream_template_context())
 
 
 @app.route("/getStreams")
