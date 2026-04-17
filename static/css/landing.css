@@ -22,10 +22,13 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url('/static/img/wormhole-live-room-hero.png');
-  background-size: cover;
-  background-position: 74% center;
-  filter: grayscale(0.68) sepia(0.22) hue-rotate(36deg) saturate(0.56) brightness(0.46) contrast(1.02);
+  background:
+    radial-gradient(circle at 72% 34%, rgba(147, 168, 122, 0.12), transparent 0 20%),
+    radial-gradient(circle at 78% 48%, rgba(147, 168, 122, 0.08), transparent 0 30%),
+    linear-gradient(90deg, rgba(147, 168, 122, 0.05) 0, rgba(147, 168, 122, 0.05) 1px, transparent 1px, transparent 96px),
+    linear-gradient(rgba(147, 168, 122, 0.04) 0, rgba(147, 168, 122, 0.04) 1px, transparent 1px, transparent 76px);
+  background-position: center center;
+  opacity: 0.55;
 }
 
 .landing-hero-inner {
