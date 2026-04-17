@@ -5,15 +5,16 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Unimatrix Zero is the front door for Wormhole streaming, live events, and real-time shared spaces.">
+  <meta name="description" content="The Wormhole is a low-latency streaming workspace for live rooms, events, and shared media operations.">
   <meta name="theme-color" content="#0b1020">
 
-  <title>Unimatrix Zero</title>
+  <title>The Wormhole</title>
 
   <link rel="shortcut icon" href="/static/img/ovenspace.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/wormhole-ui.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
 </head>
 
@@ -21,43 +22,45 @@
   <div class="landing-shell">
     <header class="topbar">
       <a class="brand" href="{{ url_for('landing') }}">
-        <span class="brand-mark">U0</span>
+        <span class="brand-mark">TW</span>
         <span class="brand-copy">
-          <strong>Unimatrix Zero</strong>
-          <span>Realtime streaming gateway</span>
+          <strong>The Wormhole</strong>
+          <span>Realtime streaming workspace</span>
         </span>
       </a>
       <nav class="topbar-actions">
-        <a class="nav-link" href="{{ url_for('space') }}">Open stream</a>
+        <a class="nav-link active" href="{{ url_for('landing') }}" aria-current="page">Overview</a>
+        <a class="nav-link" href="{{ url_for('space') }}">Live room</a>
+        <a class="nav-link" href="{{ url_for('get_streams') }}">Inventory JSON</a>
       </nav>
     </header>
 
     <main class="hero-grid">
       <section class="hero-copy">
-        <div class="eyebrow">Live, low-latency, no nonsense</div>
-        <h1>Welcome to Unimatrix Zero.</h1>
+        <div class="eyebrow">Low-latency streaming environment</div>
+        <h1>Broadcast, watch, and coordinate in The Wormhole.</h1>
         <p class="lede">
-          This is the public front door for Sean's Wormhole streaming stack. If you're here to watch,
-          broadcast, or poke around the live room, head straight into the stream surface.
+          The Wormhole is a professional live streaming workspace for real-time rooms, operational viewing,
+          and fast collaboration. The homepage gives visitors orientation, while the live room stays one click away.
         </p>
 
         <div class="cta-row">
-          <a class="button button-primary" href="{{ url_for('space') }}">Enter stream</a>
-          <a class="button button-secondary" href="#about">What is this?</a>
+          <a class="button button-primary" href="{{ url_for('space') }}">Enter live room</a>
+          <a class="button button-secondary" href="#about">Explore the workflow</a>
         </div>
 
         <dl class="meta-strip">
           <div>
-            <dt>Live surface</dt>
+            <dt>Live room</dt>
             <dd><code>/stream</code></dd>
           </div>
           <div>
-            <dt>Access model</dt>
-            <dd>Header-auth aware</dd>
+            <dt>Ingest</dt>
+            <dd>Camera, screen, WHIP</dd>
           </div>
           <div>
-            <dt>Protocols</dt>
-            <dd>WebRTC, WHIP, LL-HLS</dd>
+            <dt>Playback</dt>
+            <dd>WebRTC, LL-HLS</dd>
           </div>
         </dl>
       </section>
@@ -67,12 +70,12 @@
         <div class="panel-card status-card">
           <div class="status-head">
             <span class="status-dot"></span>
-            <span>Gateway ready</span>
+            <span>Application ready</span>
           </div>
-          <h2>Jump into the live room</h2>
+          <h2>Clear entry, focused live room</h2>
           <p>
-            The old default page has been moved where it belongs. Streaming now lives at
-            <strong><a href="{{ url_for('space') }}">/stream</a></strong>.
+            The homepage now acts as a proper front door, and the full streaming workspace lives at
+            <strong><a href="{{ url_for('space') }}">/stream</a></strong> where it belongs.
           </p>
           {% if username and username != 'Anonymous' %}
           <div class="identity-chip">Signed in as {{ username }}</div>
@@ -83,7 +86,7 @@
 
         <div class="panel-card quick-links">
           <h3>Quick links</h3>
-          <a href="{{ url_for('space') }}">Open the stream room</a>
+          <a href="{{ url_for('space') }}">Open the live room</a>
           <a href="{{ url_for('get_streams') }}">Check stream inventory JSON</a>
         </div>
       </aside>
@@ -91,16 +94,16 @@
 
     <section id="about" class="info-grid">
       <article class="info-card">
-        <h3>Watch</h3>
-        <p>Open the live room and watch active streams with low latency.</p>
+        <h3>Watch live</h3>
+        <p>Move directly into the live room and follow active feeds with low-latency playback.</p>
       </article>
       <article class="info-card">
-        <h3>Broadcast</h3>
-        <p>Use your camera, screen share, or an external encoder through the stream UI.</p>
+        <h3>Go live</h3>
+        <p>Start from your camera, your screen, or an external encoder without leaving the application.</p>
       </article>
       <article class="info-card">
-        <h3>Keep it simple</h3>
-        <p>The homepage is now just a clean entry point instead of dumping visitors into the full app.</p>
+        <h3>Operate cleanly</h3>
+        <p>A clearer front door, stronger hierarchy, and more consistent surfaces make the whole app feel like one system.</p>
       </article>
     </section>
   </div>
