@@ -540,7 +540,7 @@ h6 {
 
 .stream-shell {
     width: 100%;
-    padding-top: 12px;
+    padding-top: 32px;
 }
 
 .stream-hero,
@@ -711,7 +711,7 @@ h6 {
 
 @media (max-width: 640px) {
     .stream-shell {
-        padding-top: 14px;
+        padding-top: 24px;
     }
 
     .site-topbar,
