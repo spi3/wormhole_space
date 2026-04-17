@@ -5,14 +5,14 @@
 .landing-topbar {
   position: relative;
   z-index: 3;
-  width: min(1240px, calc(100% - 40px));
+  width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 24px 0 0;
+  padding: 18px 0 0;
 }
 
 .landing-hero {
   position: relative;
-  min-height: 100svh;
+  min-height: 78svh;
   overflow: clip;
 }
 
@@ -20,10 +20,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, rgba(7, 20, 35, 0.95) 0%, rgba(7, 20, 35, 0.8) 30%, rgba(7, 20, 35, 0.22) 58%, rgba(7, 20, 35, 0.08) 100%),
-    linear-gradient(180deg, rgba(7, 20, 35, 0.34), rgba(7, 20, 35, 0.58) 72%, rgba(7, 20, 35, 0.88));
   z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(4, 8, 6, 0.94) 0%, rgba(4, 8, 6, 0.84) 34%, rgba(4, 8, 6, 0.48) 62%, rgba(4, 8, 6, 0.34) 100%),
+    linear-gradient(180deg, rgba(4, 8, 6, 0.3), rgba(4, 8, 6, 0.68) 78%, rgba(4, 8, 6, 0.88));
 }
 
 .landing-hero::after {
@@ -32,10 +32,8 @@
   inset: 0;
   background-image: url('/static/img/wormhole-live-room-hero.png');
   background-size: cover;
-  background-position: 76% center;
-  transform-origin: center;
-  filter: saturate(1.02) contrast(1.04);
-  animation: slow-drift 22s ease-in-out infinite;
+  background-position: 74% center;
+  filter: grayscale(0.68) sepia(0.22) hue-rotate(36deg) saturate(0.56) brightness(0.46) contrast(1.02);
 }
 
 .landing-hero-inner {
@@ -43,45 +41,46 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  min-height: calc(100svh - 96px);
-  width: min(1240px, calc(100% - 40px));
+  min-height: calc(78svh - 84px);
+  width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 84px 0 64px;
+  padding: 40px 0 34px;
 }
 
 .landing-copy {
-  max-width: 580px;
+  max-width: 540px;
 }
 
 .landing-copy h1 {
-  margin-top: 18px;
-  font-size: clamp(4.1rem, 10vw, 8.4rem);
-  line-height: 0.9;
+  margin-top: 14px;
+  font-size: clamp(2.8rem, 7vw, 4.8rem);
+  line-height: 0.92;
+  text-transform: uppercase;
 }
 
 .hero-support {
-  max-width: 32rem;
-  margin-top: 18px;
+  max-width: 31rem;
+  margin-top: 16px;
   color: var(--ink-soft);
-  font-size: clamp(1.05rem, 1.7vw, 1.28rem);
-  line-height: 1.7;
+  font-size: 1.03rem;
+  line-height: 1.75;
 }
 
 .cta-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 34px;
+  gap: 12px;
+  margin-top: 28px;
 }
 
 .landing-sections {
-  width: min(1160px, calc(100% - 40px));
+  width: min(920px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 80px 0 96px;
+  padding: 42px 0 60px;
 }
 
 .landing-section {
-  padding: 34px 0;
+  padding: 20px 0;
   border-top: 1px solid var(--line);
 }
 
@@ -91,37 +90,40 @@
 }
 
 .landing-section h2 {
-  font-size: clamp(2rem, 4.5vw, 3.3rem);
+  font-size: clamp(1.55rem, 4vw, 2.4rem);
+  text-transform: uppercase;
 }
 
 .section-copy {
-  max-width: 48rem;
-  margin-top: 12px;
+  max-width: 42rem;
+  margin-top: 10px;
   color: var(--ink-soft);
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   line-height: 1.8;
 }
 
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 26px;
+  gap: 18px;
+  margin-top: 18px;
 }
 
 .flow-step {
-  padding-top: 18px;
+  padding-top: 14px;
   border-top: 1px solid var(--line);
 }
 
 .flow-step h3 {
-  font-size: 1.26rem;
+  font-size: 1rem;
+  text-transform: uppercase;
 }
 
 .flow-step p {
   margin-top: 10px;
   color: var(--ink-soft);
   line-height: 1.8;
+  font-size: 0.95rem;
 }
 
 .section-callout {
@@ -138,16 +140,12 @@
 @media (max-width: 960px) {
   .landing-hero::before {
     background:
-      linear-gradient(180deg, rgba(7, 20, 35, 0.92) 0%, rgba(7, 20, 35, 0.74) 56%, rgba(7, 20, 35, 0.86) 100%),
-      linear-gradient(90deg, rgba(7, 20, 35, 0.84), rgba(7, 20, 35, 0.2));
+      linear-gradient(180deg, rgba(4, 8, 6, 0.92) 0%, rgba(4, 8, 6, 0.74) 58%, rgba(4, 8, 6, 0.88) 100%),
+      linear-gradient(90deg, rgba(4, 8, 6, 0.84), rgba(4, 8, 6, 0.26));
   }
 
   .landing-hero::after {
     background-position: center center;
-  }
-
-  .landing-hero-inner {
-    align-items: end;
   }
 
   .flow-grid,
@@ -162,19 +160,26 @@
   .landing-topbar,
   .landing-hero-inner,
   .landing-sections {
-    width: min(100% - 24px, 1240px);
+    width: min(100% - 24px, 1120px);
+  }
+
+  .landing-hero {
+    min-height: 70svh;
   }
 
   .landing-hero-inner {
-    padding: 56px 0 48px;
+    min-height: calc(70svh - 72px);
+    padding: 34px 0 28px;
   }
 
   .landing-copy h1 {
-    font-size: clamp(3.15rem, 17vw, 5rem);
+    font-size: clamp(2.7rem, 16vw, 4.4rem);
   }
 
-  .hero-support {
-    font-size: 1rem;
+  .hero-support,
+  .section-copy,
+  .flow-step p {
+    font-size: 0.94rem;
   }
 
   .cta-row {

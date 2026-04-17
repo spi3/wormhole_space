@@ -14,7 +14,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 
@@ -33,13 +33,12 @@
           <span class="brand-mark">TW</span>
           <span class="brand-copy">
             <strong>The Wormhole</strong>
-            <span>Realtime streaming workspace</span>
+            <span>Low-latency relay workspace</span>
           </span>
         </a>
         <nav class="topbar-actions">
           <a class="nav-link" href="{{ url_for('landing') }}">Overview</a>
           <a class="nav-link active" href="{{ url_for('space') }}" aria-current="page">Live room</a>
-          <a class="nav-link" href="{{ url_for('get_streams') }}">Inventory JSON</a>
         </nav>
       </header>
 
@@ -47,10 +46,10 @@
         <div class="stream-hero-media" aria-hidden="true"></div>
         <div class="stream-hero-content">
           <div class="stream-hero-copy reveal-up">
-            <div class="eyebrow">Live room</div>
-            <h1>The Wormhole Live Room</h1>
+            <div class="eyebrow">live room / relay node</div>
+            <h1>The Wormhole / Live Room</h1>
             <p class="stream-lede">
-              Run playback, go live fast, and keep the broadcast surface focused when viewers are already waiting.
+              Playback, ingest, and audience state in one place, without the usual product-marketing fireworks.
             </p>
             <p class="stream-meta-line">
               <span><strong id="total-user-count-span">0</strong> viewers online</span>
@@ -63,7 +62,7 @@
             {% if username and username != 'Anonymous' %}
             <div class="identity-chip">Signed in as {{ username }}</div>
             {% else %}
-            <div class="identity-chip">Guest access</div>
+            <div class="identity-chip">Guest session</div>
             {% endif %}
 
             <div class="stream-action-group">
@@ -88,7 +87,7 @@
         <div class="workspace-header">
           <div>
             <h2>Live streams</h2>
-            <p>Open a feed, start broadcasting, or move into theater mode for closer watching.</p>
+            <p>Open a feed, start broadcasting, or drop into theater mode when you actually need it.</p>
           </div>
         </div>
         <div class="body flex-grow-1 pt-4">
@@ -104,7 +103,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 id="before-streaming-title" class="modal-title">Choose how to go live</h5>
+          <h5 id="before-streaming-title" class="modal-title">Choose input</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -179,7 +178,7 @@
           </div>
           <div id="capture-select-area" class="row">
             <p class="capture-guidance px-4 small text-center">
-              Start with a conservative bitrate, confirm stability, then scale up once your uplink and playback path look clean.
+              Start conservative, verify stability, then scale up once the uplink and playback path stay clean.
             </p>
             <div class="col-12">
               <div id="quality-select-area" class="row justify-content-center mb-3">
