@@ -160,8 +160,11 @@ def get_streams():
         response = requests.get(OME_API_GET_STREAMS,
                                 headers=OME_API_AUTH_HEADER, timeout=0.3)
         return response.json(), response.status_code
-    except Exception as e:
-        return str(e), 500
+    except Exception:
+        return {
+            'statusCode': 200,
+            'response': []
+        }, 200
 
 
 @socketio.on('connect')
