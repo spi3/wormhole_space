@@ -558,12 +558,15 @@ h6 {
 .stream-hero-media {
     position: absolute;
     inset: 0;
-    background-image:
+    background:
         linear-gradient(90deg, rgba(4, 8, 6, 0.94) 0%, rgba(4, 8, 6, 0.82) 42%, rgba(4, 8, 6, 0.46) 100%),
-        url('/static/img/wormhole-live-room-hero.png');
-    background-size: cover;
-    background-position: 64% center;
-    filter: grayscale(0.64) sepia(0.22) hue-rotate(36deg) saturate(0.56) brightness(0.44);
+        radial-gradient(circle at 78% 44%, rgba(147, 168, 122, 0.12), transparent 0 18%),
+        radial-gradient(circle at 84% 56%, rgba(147, 168, 122, 0.08), transparent 0 26%),
+        linear-gradient(90deg, rgba(147, 168, 122, 0.05) 0, rgba(147, 168, 122, 0.05) 1px, transparent 1px, transparent 92px),
+        linear-gradient(rgba(147, 168, 122, 0.04) 0, rgba(147, 168, 122, 0.04) 1px, transparent 1px, transparent 72px),
+        linear-gradient(180deg, rgba(7, 16, 13, 0.6), rgba(7, 16, 13, 0.82));
+    background-position: center center;
+    opacity: 0.72;
 }
 
 .stream-hero-content {
