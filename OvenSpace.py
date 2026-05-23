@@ -35,6 +35,34 @@ except Exception as e:
     print(f"       {str(e)}", file=sys.stderr)
     sys.exit(1)
 
+# Allow runtime environment variables to override file-based config.
+ENV_OVERRIDE_KEYS = (
+    'OME_HOST',
+    'OME_API_HOST',
+    'OME_CLIENT_HOST',
+    'OME_API_ENABLE_TLS',
+    'OME_API_PORT',
+    'OME_API_ACCESS_TOKEN',
+    'OME_VHOST_NAME',
+    'OME_APP_NAME',
+    'OME_STREAM_NAME',
+    'OME_RTMP_PROVIDER_PORT',
+    'OME_SRT_PROVIDER_PORT',
+    'OME_WEBRTC_PROVIDER_ENABLE_TLS',
+    'OME_WEBRTC_PROVIDER_PORT',
+    'OME_WEBRTC_PUBLISHER_ENABLE_TLS',
+    'OME_WEBRTC_PUBLISHER_PORT',
+    'OME_LLHLS_PUBLISHER_ENABLE_TLS',
+    'OME_LLHLS_PUBLISHER_PORT',
+    'SITE_HOST',
+    'SITE_PORT',
+)
+
+for key in ENV_OVERRIDE_KEYS:
+    value = os.getenv(key)
+    if value not in (None, ''):
+        app.config[key] = value
+
 socketio = SocketIO(app, cors_allowed_origins="*", async_handlers=True)
 
 
@@ -127,21 +155,31 @@ stream_viewers = {}
 session_watching = {}
 
 
+def get_request_username():
+    return request.headers.get('X-Auth-User', '').strip() or 'Anonymous'
+
+
+def get_stream_template_context():
+    return {
+        'app_name': OME_APP_NAME,
+        'stream_name': OME_STREAM_NAME,
+        'rtmp_input_url': OME_RTMP_INPUT_URL,
+        'srt_input_url': OME_SRT_INPUT_URL,
+        'webrtc_input_host': OME_WEBRTC_INPUT_HOST,
+        'webrtc_streaming_host': OME_WEBRTC_STREAMING_HOST,
+        'llhls_streaming_host': OME_LLHLS_STREAMING_HOST,
+        'username': get_request_username(),
+    }
+
+
 @app.route("/")
+def landing():
+    return render_template('index.html', username=get_request_username())
+
+
+@app.route("/stream", strict_slashes=False)
 def space():
-    # Get username from header for this user
-    username = request.headers.get('X-Auth-User', '').strip() or 'Anonymous'
-    return render_template(
-        'index.html',
-        app_name=OME_APP_NAME,
-        stream_name=OME_STREAM_NAME,
-        rtmp_input_url=OME_RTMP_INPUT_URL,
-        srt_input_url=OME_SRT_INPUT_URL,
-        webrtc_input_host=OME_WEBRTC_INPUT_HOST,
-        webrtc_streaming_host=OME_WEBRTC_STREAMING_HOST,
-        llhls_streaming_host=OME_LLHLS_STREAMING_HOST,
-        username=username
-    )
+    return render_template('stream.html', **get_stream_template_context())
 
 
 @app.route("/getStreams")
@@ -150,8 +188,11 @@ def get_streams():
         response = requests.get(OME_API_GET_STREAMS,
                                 headers=OME_API_AUTH_HEADER, timeout=0.3)
         return response.json(), response.status_code
-    except Exception as e:
-        return str(e), 500
+    except Exception:
+        return {
+            'statusCode': 200,
+            'response': []
+        }, 200
 
 
 @socketio.on('connect')

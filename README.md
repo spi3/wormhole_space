@@ -145,6 +145,16 @@ Set the OvenSpace port.
 
 ### Environment Variables
 
+All OvenSpace config keys can be overridden with runtime environment variables. This is useful for Docker and Kubernetes deployments where you want to keep the config file generic and inject hostnames, ports, or tokens at runtime.
+
+Common overrides:
+
+```bash
+export OME_API_HOST=ovenmediaengine
+export OME_CLIENT_HOST=stream.example.com
+export SITE_HOST=stream.example.com
+```
+
 #### `OVENSPACE_CONFIG`
 Specifies the path to the configuration file (absolute or relative).
 
@@ -161,6 +171,9 @@ Specifies the path to the configuration file (absolute or relative).
 ```yaml
 environment:
   - OVENSPACE_CONFIG=/app/custom-config.cfg
+  - OME_API_HOST=ovenmediaengine
+  - OME_CLIENT_HOST=stream.example.com
+  - SITE_HOST=stream.example.com
 volumes:
   - ./my-config.cfg:/app/custom-config.cfg:ro
 ```
